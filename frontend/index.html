@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Web Scraper - Authorized Penetration Testing</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+            plugins: [
+                function({ addBase, theme }) {
+                    addBase({
+                        'input[type="url"]': {
+                            appearance: 'none',
+                            borderWidth: '1px',
+                            borderColor: theme('colors.gray.300'),
+                            borderRadius: theme('borderRadius.md'),
+                            paddingTop: theme('spacing.2'),
+                            paddingRight: theme('spacing.3'),
+                            paddingBottom: theme('spacing.2'),
+                            paddingLeft: theme('spacing.3'),
+                            lineHeight: theme('lineHeight.normal'),
+                            '&:focus': {
+                                outline: 'none',
+                                borderColor: theme('colors.blue.500'),
+                                boxShadow: `0 0 0 3px ${theme('colors.blue.100')}`,
+                            },
+                        },
+                    });
+                },
+            ],
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- D3.js for Visualization -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tree-container {
+            overflow: auto;
+            max-height: 600px;
+        }
+        .node circle {
+            fill: #fff;
+            stroke: #1d4ed8;
+            stroke-width: 2px;
+        }
+        .node text {
+            font: 12px sans-serif;
+        }
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Ethical Disclaimer Banner -->
+    <div class="bg-red-600 text-white text-center py-2 px-4">
+        <p class="font-semibold">⚠️ ETHICAL DISCLAIMER: This tool is for authorized penetration testing only. Use only on websites you own or have explicit permission to test.</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Advanced Web Scraper</h1>
+            <p class="text-gray-600">Authorized Penetration Testing Tool</p>
+        </header>
+
+        <!-- Input Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <form id="scanForm" class="space-y-4">
+                <div>
+                    <label for="baseUrl" class="block text-sm font-medium text-gray-700">Target URL</label>
+                    <input type="url" id="baseUrl" name="baseUrl" required
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                           placeholder="https://example.com">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Scan Options</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" value="full" checked class="rounded text-blue-600">
+                            <span>Full Scan</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" value="urls" class="rounded text-blue-600">
+                            <span>Hidden URLs</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" value="login" class="rounded text-blue-600">
+                            <span>Login Forms</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" value="admin" class="rounded text-blue-600">
+                            <span>Admin Panels</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" value="api_keys" class="rounded text-blue-600">
+                            <span>API Keys</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" value="wallet" class="rounded text-blue-600">
+                            <span>Wallet Keys</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Start Scan
+                </button>
+            </form>
+        </div>
+
+        <!-- Progress Section -->
+        <div id="progressSection" class="hidden bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900">Scan Progress</h3>
+                    <span id="scanStatus" class="px-2 py-1 text-sm rounded-full"></span>
+                </div>
+                <div class="relative pt-1">
+                    <div class="flex mb-2 items-center justify-between">
+                        <div>
+                            <span id="progressText" class="text-xs font-semibold inline-block text-blue-600"></span>
+                        </div>
+                        <div class="text-right">
+                            <span id="progressPercentage" class="text-xs font-semibold inline-block text-blue-600">0%</span>
+                        </div>
+                    </div>
+                    <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-blue-200">
+                        <div id="progressBar" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-600" style="width: 0%"></div>
+                    </div>
+                </div>
+                <!-- Activity Log -->
+                <div id="activityLog" class="mt-4 space-y-2 max-h-40 overflow-y-auto bg-gray-50 rounded p-3">
+                    <!-- Activities will be added here dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden space-y-8">
+            <!-- Site Structure Visualization -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Site Structure</h3>
+                <div id="treeVisualization" class="tree-container"></div>
+            </div>
+
+            <!-- Findings Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Hidden URLs -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-link text-blue-600 mr-2"></i>Hidden URLs
+                    </h3>
+                    <div id="hiddenUrls" class="space-y-2"></div>
+                </div>
+
+                <!-- Login Forms -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-sign-in-alt text-blue-600 mr-2"></i>Login Forms
+                    </h3>
+                    <div id="loginForms" class="space-y-4"></div>
+                </div>
+
+                <!-- Admin Panels -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-user-shield text-blue-600 mr-2"></i>Admin Panels
+                    </h3>
+                    <div id="adminPanels" class="space-y-2"></div>
+                </div>
+
+                <!-- API Keys -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-key text-blue-600 mr-2"></i>API Keys
+                    </h3>
+                    <div id="apiKeys" class="space-y-4"></div>
+                </div>
+
+                <!-- Wallet Keys -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-wallet text-blue-600 mr-2"></i>Wallet Keys
+                    </h3>
+                    <div id="walletKeys" class="space-y-4"></div>
+                </div>
+
+                <!-- Payment Information -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-credit-card text-blue-600 mr-2"></i>Payment Information
+                    </h3>
+                    <div id="paymentInfo" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- Export Results -->
+            <div class="flex justify-end">
+                <button id="exportButton" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                    <i class="fas fa-download mr-2"></i>Export Results
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+    <script src="js/visualization.js"></script>
+    <script src="js/websocket.js"></script>
+</body>
+</html>
